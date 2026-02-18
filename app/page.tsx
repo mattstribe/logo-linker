@@ -23,6 +23,7 @@ export default function Home() {
   const [logos, setLogos] = useState<UploadedLogo[]>([]);
   const [assignments, setAssignments] = useState<Assignments>({});
   const [loaded, setLoaded] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   useEffect(() => {
     const saved = loadLeague();
@@ -33,6 +34,7 @@ export default function Home() {
   const handleLeagueChange = useCallback((updated: League) => {
     setLeague(updated);
     saveLeague(updated);
+    setShowValidation(false);
   }, []);
 
   const handleAssignmentsChange = useCallback((updated: Assignments) => {
@@ -160,7 +162,7 @@ export default function Home() {
         {/* Step content */}
         <div className="mb-8">
           {step === 1 && (
-            <LeagueBuilder league={league} onChange={handleLeagueChange} />
+            <LeagueBuilder league={league} onChange={handleLeagueChange} showNameError={showValidation && !league.name.trim()} />
           )}
           {step === 2 && (
             <LogoUploader logos={logos} onLogosChange={setLogos} />
@@ -196,20 +198,32 @@ export default function Home() {
           </button>
 
           {step < 4 && (
-            <button
-              onClick={() => setStep((s) => Math.min(4, s + 1))}
-              disabled={!canProceed(step + 1)}
-              className={`
-                rounded-lg px-5 py-2.5 text-sm font-medium transition-colors
-                ${
-                  canProceed(step + 1)
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
-                }
-              `}
-            >
-              Continue
-            </button>
+            <div className="flex items-center gap-3">
+              {showValidation && !canProceed(step + 1) && (
+                <p className="text-sm text-red-400">
+                  {step === 1 && !league.name.trim()
+                    ? "Enter a league name"
+                    : step === 1 && totalTeams === 0
+                      ? "Add at least one team"
+                      : step === 2
+                        ? "Upload at least one logo"
+                        : "Assign at least one logo"}
+                </p>
+              )}
+              <button
+                onClick={() => {
+                  if (canProceed(step + 1)) {
+                    setShowValidation(false);
+                    setStep((s) => Math.min(4, s + 1));
+                  } else {
+                    setShowValidation(true);
+                  }
+                }}
+                className="rounded-lg px-5 py-2.5 text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Continue
+              </button>
+            </div>
           )}
         </div>
       </main>

@@ -74,18 +74,10 @@ export default function DownloadButton({ league, logos, assignments }: Props) {
                     <div key={div.id} className="ml-3">
                       <p className="text-zinc-500">{div.name}/</p>
                       {teamsWithLogos.map((team) => {
-                        const logo = logos.find(
-                          (l) => l.id === assignments[team.id]
-                        );
-                        const ext = logo
-                          ? logo.originalName.slice(
-                              logo.originalName.lastIndexOf(".")
-                            )
-                          : ".png";
                         return (
                           <p key={team.id} className="ml-3 text-green-400/70">
                             {team.name}
-                            {ext}
+                            .png
                           </p>
                         );
                       })}
